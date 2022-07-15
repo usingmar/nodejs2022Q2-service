@@ -59,5 +59,4 @@ export class UserController{
         this.userService.deleteUser(id);
     }
 
-
 }

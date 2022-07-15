@@ -54,6 +54,8 @@ export class UserService{
             }, 403);
         }
         user.password = userInfo.newPassword;
+        user.updatedAt = Date.now();
+        user.version++;
         return user;
     }
 
