@@ -10,7 +10,15 @@ export class UserService{
     private users: User[] = [];
 
     readAll(){
-        return this.users;
+        return this.users.map((item) => {
+            return {
+                id: item.id,
+                login: item.login,
+                version: item.version,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt
+            }
+        });
     }
 
     readOne(id: string){
@@ -22,19 +30,31 @@ export class UserService{
                 message: `Record with id = ${id} doesn't exist`
             }, 404);
         }
-        return user;
+        return {
+            id: user.id,
+            login: user.login,
+            version: user.version,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        }
     }
 
-    createUser(newUser: CreateUserDto): User{
+    createUser(newUser: CreateUserDto){
         let user: User = {
             id: v4(),
             ...newUser,
-            version: 0,
+            version: 1,
             createdAt: Date.now(),
-            updatedAt: 0
+            updatedAt: Date.now()
         };
         this.users.push(user);
-        return user;
+        return {
+            id: user.id,
+            login: user.login,
+            version: user.version,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        }
     }
 
     updateUserPassword(id: string, userInfo: UpdatePasswordDto){
@@ -56,7 +76,13 @@ export class UserService{
         user.password = userInfo.newPassword;
         user.updatedAt = Date.now();
         user.version++;
-        return user;
+        return {
+            id: user.id,
+            login: user.login,
+            version: user.version,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        };
     }
 
     deleteUser(id: string){

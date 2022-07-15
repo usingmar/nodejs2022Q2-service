@@ -15,14 +15,14 @@ export class AlbumController{
 
     @Get(':id')
     getOne(@Param('id', new ParseUUIDPipe({
-            version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
-                    message: `Artist id is invalid (not uuid version 4)`
-                }, 400)}
-            })) id): ReturnAlbumDto{
+                    message: `Album id is invalid (not uuid version 4)`
+                }, 400)
+            }
+        })) id): ReturnAlbumDto{
         return this.albumService.readOne(id);
     }
 
@@ -33,28 +33,28 @@ export class AlbumController{
 
     @Put(':id')
     updateAlbum(@Param('id', new ParseUUIDPipe({
-        version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `Album id is invalid (not uuid version 4)`
-                }, 400)}
-    })) id, @Body() albumInfo: CreateAlbumDto){
+                }, 400)
+            }
+        })) id, @Body() albumInfo: CreateAlbumDto){
         return this.albumService.updateAlbum(id, albumInfo); 
     }
 
     @Delete(':id')
     @HttpCode(204)
     deleteAlbum(@Param('id', new ParseUUIDPipe({
-            version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `Album id is invalid (not uuid version 4)`
-                }, 400)}
-    })) id): void{
+                }, 400)
+            }
+        })) id): void{
         this.albumService.deleteAlbum(id);
     }
 }

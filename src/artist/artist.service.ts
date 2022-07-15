@@ -4,12 +4,18 @@ import { CreateArtistDto } from "./dto/createArtist.dto";
 import {v4} from 'uuid'
 import { AlbumService } from "src/album/album.service";
 import { forwardRef } from "@nestjs/common";
+import { TrackService } from "src/track/track.service";
+import { FavoritesService } from "src/favorites/favorites.service";
 
 @Injectable()
 export class ArtistService{
     
     private artists: Artist[] = []
-    constructor( @Inject(forwardRef(() => AlbumService)) private readonly albumService: AlbumService){}
+    constructor(
+        @Inject(forwardRef(() => AlbumService)) private readonly albumService: AlbumService,
+        @Inject(forwardRef(() => TrackService))private readonly trackService: TrackService,
+        @Inject(forwardRef(() => FavoritesService))private readonly favsService: FavoritesService
+        ){}
 
     readAll(): Artist[]{
         return this.artists;
@@ -21,7 +27,7 @@ export class ArtistService{
             throw new HttpException({
                 statusCode: 404,
                 error: "Bad request",
-                message: `Record with id = ${id} doesn't exist`
+                message: `Artist with id = ${id} doesn't exist`
             }, 404);
         }
         return artist;
@@ -42,7 +48,7 @@ export class ArtistService{
             throw new HttpException({
                 statusCode: 404,
                 error: "Bad request",
-                message: `Record with id = ${id} doesn't exist`
+                message: `Artist with id = ${id} doesn't exist`
             }, 404);
         }
         artist.name = artistInfo.name;
@@ -52,18 +58,22 @@ export class ArtistService{
 
     deleteArtist(id: string){
         let foundIndex;
-        let user = this.artists.find((item: Artist,index: number) => {
+        let artist = this.artists.find((item: Artist,index: number) => {
             foundIndex = index;
             return item.id === id ? true : false;
         });
-        if(!user){
+        if(!artist){
             throw new HttpException({
                 statusCode: 404,
                 error: "Bad request",
-                message: `Record with id = ${id} doesn't exist`
+                message: `Artist with id = ${id} doesn't exist`
             }, 404);
         }
         this.albumService.updateArtist(id);
+        this.trackService.updateArtist(id);
+        try{
+        this.favsService.deleteArtistFromFavorites(id);
+        }catch(error){}
         this.artists.splice(foundIndex,1);
     }
 }

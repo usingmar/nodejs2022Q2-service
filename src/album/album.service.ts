@@ -1,41 +1,24 @@
 import { HttpException, Inject, Injectable } from "@nestjs/common";
 import { Album } from "./album.entity";
 import {v4} from 'uuid'
-import { ArtistService } from "src/artist/artist.service";
 import { CreateAlbumDto } from "./dto/createAlbum.dto";
 import { ReturnAlbumDto } from "./dto/returnAlbum.dto";
 import { forwardRef } from "@nestjs/common";
+import { TrackService } from "src/track/track.service";
+import { FavoritesService } from "src/favorites/favorites.service";
 
 @Injectable()
 export class AlbumService{
         
     private albums: Album[] = []
 
-    constructor(@Inject(forwardRef(() => ArtistService))private readonly artistService: ArtistService){}
+    constructor(
+        @Inject(forwardRef(() => TrackService))private readonly trackService: TrackService,
+        @Inject(forwardRef(() => FavoritesService))private readonly favsService: FavoritesService
+        ){}
 
     readAll(): ReturnAlbumDto[]{
-        let returnAlbums: ReturnAlbumDto[];
-        returnAlbums = this.albums.map((item: Album) => {
-            if(item.artistId){
-                let artist = this.artistService.readOne(item.artistId);
-                let returnAlbum: ReturnAlbumDto = {
-                    id: item.id,
-                    name: item.name,
-                    year: item.year,
-                    artist: artist
-                }
-                return returnAlbum;
-            }
-            let returnAlbum: ReturnAlbumDto;
-            returnAlbum = {
-                id: item.id,
-                name: item.name,
-                year: item.year,
-                artist: null
-            } 
-            return returnAlbum; 
-        });
-        return returnAlbums;
+        return this.albums;
     }
 
     readOne(id: string): ReturnAlbumDto{
@@ -43,42 +26,20 @@ export class AlbumService{
         if(!album){
             throw new HttpException({
                 statusCode: 404,
-                error: "Bad request",
-                message: `Record with id = ${id} doesn't exist`
+                error: "Not found",
+                message: `Album with id = ${id} doesn't exist`
             }, 404);
         }
-        if(album.artistId){
-            let artist = this.artistService.readOne(album.artistId);
-            return {
-                id: album.id,
-                name: album.name,
-                year: album.year,
-                artist: artist
-            }
-        } 
-        return {
-            id: album.id,
-            name: album.name,
-            year: album.year,
-            artist: null
-        }; 
+        return album;
     }
 
     createAlbum(newAlbum: CreateAlbumDto): ReturnAlbumDto{       
-        if(newAlbum.artistId)
-        var artist = this.artistService.readOne(newAlbum.artistId)
-        else artist = null
         let album: Album = {
             id: v4(),
             ...newAlbum
         };
         this.albums.push(album);
-        return {
-            id: album.id,
-            name: album.name,
-            year: album.year,
-            artist: artist 
-        };
+        return album;
     }
 
     updateAlbum(id: string, albumInfo: CreateAlbumDto): ReturnAlbumDto{
@@ -87,29 +48,17 @@ export class AlbumService{
             throw new HttpException({
                 statusCode: 404,
                 error: "Bad request",
-                message: `Record with id = ${id} doesn't exist`
+                message: `Album with id = ${id} doesn't exist`
             }, 404);
         }
         album.name = albumInfo.name;
         album.year = albumInfo.year;
         album.artistId = albumInfo.artistId;
-        if(albumInfo.artistId)
-        return {
-            id: album.id,
-            name: album.name,
-            year: album.year,
-            artist: this.artistService.readOne(album.artistId)
-        };
-        return {
-            id: album.id,
-            name: album.name,
-            year: album.year,
-            artist: null
-        };
+        return album;
     }
 
     deleteAlbum(id: string): void{
-        let foundIndex;
+        let foundIndex: number;
         let album = this.albums.find((item: Album,index: number) => {
             foundIndex = index;
             return item.id === id ? true : false;
@@ -118,9 +67,13 @@ export class AlbumService{
             throw new HttpException({
                 statusCode: 404,
                 error: "Bad request",
-                message: `Record with id = ${id} doesn't exist`
+                message: `Album with id = ${id} doesn't exist`
             }, 404);
         }
+        this.trackService.updateAlbum(id);
+        try{
+        this.favsService.deleteAlbumFromFavorites(id);
+        }catch(error){}
         this.albums.splice(foundIndex,1);
     }
 
@@ -128,6 +81,5 @@ export class AlbumService{
         this.albums.forEach((item) => {
             if(item.artistId === id) item.artistId = null
         });
-
     }
 }

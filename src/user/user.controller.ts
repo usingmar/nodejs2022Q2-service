@@ -10,52 +10,52 @@ export class UserController{
     constructor(private readonly userService: UserService){}
     
     @Get()
-    getAll(): User[]{
+    getAll(){
         return this.userService.readAll();
     }
 
     @Get(':id')
     getOne(@Param('id', new ParseUUIDPipe({
-            version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `User id is invalid (not uuid version 4)`
-                }, 400)}
-            })) id): User{
+                }, 400)
+            }
+            })) id){
         return this.userService.readOne(id);
     }
 
     @Post()
-    createUser(@Body() newUser: CreateUserDto): User{
+    createUser(@Body() newUser: CreateUserDto){
         return this.userService.createUser(newUser);
     }
 
     @Put(':id')
     updateUserPassword(@Param('id', new ParseUUIDPipe({
-        version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `User id is invalid (not uuid version 4)`
-                }, 400)}
-    })) id, @Body() userInfo: UpdatePasswordDto){
+                }, 400)
+            }
+            })) id, @Body() userInfo: UpdatePasswordDto){
         return this.userService.updateUserPassword(id, userInfo); 
     }
 
     @Delete(':id')
     @HttpCode(204)
     deleteUser(@Param('id', new ParseUUIDPipe({
-        version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `User id is invalid (not uuid version 4)`
-                }, 400)}
-    })) id): void{
+                }, 400)
+            }
+            })) id): void{
         this.userService.deleteUser(id);
     }
 

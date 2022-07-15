@@ -15,14 +15,14 @@ export class ArtistController{
 
     @Get(':id')
     getOne(@Param('id', new ParseUUIDPipe({
-            version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `Artist id is invalid (not uuid version 4)`
-                }, 400)}
-            })) id): Artist{
+                }, 400)
+            }
+        })) id): Artist{
         return this.artistService.readOne(id);
     }
 
@@ -33,28 +33,28 @@ export class ArtistController{
 
     @Put(':id')
     updateArtist(@Param('id', new ParseUUIDPipe({
-        version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
                     message: `Artist id is invalid (not uuid version 4)`
-                }, 400)}
-    })) id, @Body() artistInfo: CreateArtistDto){
+                }, 400)
+            }
+        })) id, @Body() artistInfo: CreateArtistDto){
         return this.artistService.updateArtist(id, artistInfo); 
     }
 
     @Delete(':id')
     @HttpCode(204)
     deleteUser(@Param('id', new ParseUUIDPipe({
-        version: "4",
             exceptionFactory() {
                 throw new HttpException({
                     statusCode: 400,
                     error: "Bad request",
-                    message: `User id is invalid (not uuid version 4)`
-                }, 400)}
-    })) id): void{
+                    message: `Artist id is invalid (not uuid version 4)`
+                }, 400)
+            }
+        })) id): void{
         this.artistService.deleteArtist(id);
     }
 
