@@ -11,6 +11,12 @@
 git clone {repository URL}
 ```
 
+## Switching to working branch
+
+```
+git checkout dev
+```
+
 ## Installing NPM modules
 
 ```
